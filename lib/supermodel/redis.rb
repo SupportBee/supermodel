@@ -1,5 +1,8 @@
 module SuperModel
   module Redis
+
+    cattr_accessor :redis
+
     module ClassMethods
       def self.extended(base)
         base.class_eval do
@@ -20,7 +23,13 @@ module SuperModel
       end
       
       def redis
-        @redis ||= ::Redis.connect(redis_options)
+        unless @redis 
+          if redis_options.has_key?(:redis) and redis_options[:redis].kind_of?(Redis)
+            @redis = redis_options[:redis]
+          else  
+            @redis = ::Redis.connect(redis_options)
+          end
+        end    
       end
       
       def indexes(*indexes)
